@@ -1,0 +1,19 @@
+version: '2'
+services:
+  es-storage:
+    scale: 1
+    start_on_create: true
+  es-data:
+    start_on_create: true
+  elastalert:
+    scale: 1
+    start_on_create: true
+  es-sysctl:
+    scale: 1
+    start_on_create: true
+  es-client:
+    scale: 1
+    start_on_create: true
+  es-master:
+    scale: 1
+    start_on_create: true

@@ -1,0 +1,53 @@
+version: '2'
+services:
+  nginx-proxy:
+    image: nginx:latest
+    external_links:
+    - elasticsearch/es-master:elasticsearch
+    volumes_from:
+    - nginx-proxy-conf
+    labels:
+      io.rancher.scheduler.affinity:host_label: web-ui=true
+      io.rancher.sidekicks: kibana5,nginx-proxy-conf
+      io.rancher.container.hostname_override: container_name
+
+  kibana-vip:
+    image: rancher/lb-service-haproxy:v0.7.15
+    stdin_open: true
+    tty: true
+    ports:
+    - 80:80/tcp
+    - 443:443/tcp
+    labels:
+      io.rancher.scheduler.affinity:host_label: web-ui=true
+      io.rancher.container.agent.role: environmentAdmin,agent
+      io.rancher.container.agent_service.drain_provider: 'true'
+      io.rancher.container.create_agent: 'true'
+
+  nginx-proxy-conf:
+    image: rancher/nginx-conf:v0.2.0
+    external_links:
+    - elasticsearch/es-master:elasticsearch
+    command:
+    - -backend=rancher
+    - --prefix=/2015-07-25
+    labels:
+      io.rancher.scheduler.affinity:host_label: web-ui=true
+      io.rancher.container.start_once: 'true'
+      io.rancher.container.hostname_override: container_name
+
+  kibana5:
+    image: docker.elastic.co/kibana/kibana:5.6.5
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      XPACK_MONITORING_ENABLED: 'false'
+      XPACK_SECURITY_ENABLED: 'false'
+      XPACK_MONITORING_UI_CONTAINER_ELASTICSEARCH_ENABLED: 'false'
+    stdin_open: true
+    external_links:
+    - elasticsearch/es-master:elasticsearch
+    network_mode: container:nginx-proxy
+    tty: true
+    labels:
+      io.rancher.scheduler.affinity:host_label: web-ui=true
+      io.rancher.container.hostname_override: container_name

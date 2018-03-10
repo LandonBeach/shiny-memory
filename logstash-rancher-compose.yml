@@ -1,0 +1,11 @@
+version: '2'
+services:
+  logstash-collector:
+    scale: 1
+    start_on_create: true
+  logstash-indexer:
+    scale: 1
+    start_on_create: true
+  redis:
+    scale: 1
+    start_on_create: true
