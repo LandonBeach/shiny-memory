@@ -3,9 +3,36 @@ services:
   logstash-collector:
     scale: 1
     start_on_create: true
+    metadata:
+      logstash:
+        inputs: |
+          beats {
+            port => 5044
+            tags => ["beats"]
+          }
+        outputs: |
+          redis {
+            host => "redis.rancher.internal"
+            port => "6379"
+            data_type => "list"
+            key => "logstash"
+          }
   logstash-indexer:
     scale: 1
     start_on_create: true
+    metadata:
+      logstash:
+        inputs: |
+          redis {
+            host => "redis.rancher.internal"
+            port => "6379"
+            data_type => "list"
+            key => "logstash"
+          }
+        outputs: |
+          elasticsearch {
+            hosts => ["elasicsearch.rancher.internal:9200"]
+          }
   redis:
     scale: 1
     start_on_create: true
