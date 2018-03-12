@@ -99,6 +99,8 @@ services:
     - elasticsearch.rancher.internal
     volumes_from:
     - es-storage
+    depends_on:
+      - es-master
     labels:
       io.rancher.scheduler.affinity:host_label: es=client-node
       io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
@@ -110,7 +112,7 @@ services:
     environment:
       ES_JAVA_OPTS: -Xms2g -Xmx2g
       cluster.name: elasticsearch-cluster
-      discovery.zen.minimum_master_nodes: '4'
+      discovery.zen.minimum_master_nodes: '1'
       discovery.zen.ping.unicast.hosts: es-master
       node.data: 'false'
       node.master: 'true'
