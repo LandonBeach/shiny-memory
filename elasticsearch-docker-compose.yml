@@ -40,8 +40,6 @@ services:
       nofile:
         hard: 65536
         soft: 65536
-    dns_search:
-    - elasticsearch.rancher.internal
     volumes_from:
     - es-storage
     labels:
@@ -96,8 +94,6 @@ services:
       nofile:
         hard: 65536
         soft: 65536
-    dns_search:
-    - elasticsearch.rancher.internal
     volumes_from:
     - es-storage
     depends_on:
@@ -123,10 +119,6 @@ services:
       xpack.monitoring.enabled: 'false'
       xpack.watcher.enabled: 'false'
     stdin_open: true
-    dns_search:
-    - elasticsearch.rancher.internal
-    - es-master.elasticsearch.rancher.internal
-    - rancher.internal
     tty: true
     labels:
       io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$$$${stack_name}/$$$${service_name}
