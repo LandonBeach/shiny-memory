@@ -2,12 +2,11 @@ version: '2'
 services:
   logstash-collector:
     image: docker.elastic.co/logstash/logstash:5.6.5
-    environment:
-      xpack.monitoring.enabled: 'false'
+    restart: always
     stdin_open: true
+    tty: true
     volumes:
     - /etc/logstash/conf.d:/etc/logstash/conf.d
-    tty: true
     links:
     - redis:redis
     ports:
@@ -17,6 +16,8 @@ services:
     - logstash
     - -f
     - /etc/logstash/conf.d
+    environment:
+      xpack.monitoring.enabled: 'false'
     labels:
       io.rancher.scheduler.affinity:host_label: logstash=collector
       io.rancher.container.hostname_override: container_name
@@ -24,27 +25,31 @@ services:
 
   logstash-indexer:
     image: docker.elastic.co/logstash/logstash:5.6.5
+    restart: always
+    stdin_open: true
+    tty: true
+    volumes:
+    - /etc/logstash/conf.d:/etc/logstash/conf.d
+    links:
+    - redis:redis
+    external_links:
+    - elasticsearch/es-master:elasticsearch
+    command:
+    - logstash
+    - -f
+    - /etc/logstash/conf.d
     environment:
       xpack.monitoring.enabled: 'false'
       XPACK_MONITORING_ENABLED: 'false'
       xpack.management.enabled: 'false'
       XPACK_MANAGEMENT_ENABLED: 'false'
-    stdin_open: true
-    volumes:
-    - /etc/logstash/conf.d:/etc/logstash/conf.d
-    tty: true
-    links:
-    - redis:redis
-    command:
-    - logstash
-    - -f
-    - /etc/logstash/conf.d
     labels:
       io.rancher.scheduler.affinity:host_label_ne: logstash=collector
       io.rancher.container.hostname_override: container_name
 
   redis:
     image: redis:3.2.6-alpine
+    restart: always
     stdin_open: true
     tty: true
     labels:
