@@ -30,6 +30,3 @@ services:
           elasticsearch {
             hosts => ["elasicsearch.rancher.internal:9200"]
           }
-  redis:
-    scale: 1
-    start_on_create: true
