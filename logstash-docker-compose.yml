@@ -7,8 +7,6 @@ services:
     tty: true
     volumes:
     - /etc/logstash/conf.d:/etc/logstash/conf.d
-    links:
-    - redis:redis
     ports:
     - 3520:3520/tcp
     user: logstash
@@ -30,8 +28,6 @@ services:
     tty: true
     volumes:
     - /etc/logstash/conf.d:/etc/logstash/conf.d
-    links:
-    - redis:redis
     external_links:
     - elasticsearch/es-master:elasticsearch
     command:
