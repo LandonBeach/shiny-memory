@@ -46,11 +46,3 @@ services:
     labels:
       io.rancher.scheduler.affinity:host_label_ne: logstash=collector
       io.rancher.container.hostname_override: container_name
-
-  redis:
-    image: redis:3.2.6-alpine
-    restart: always
-    stdin_open: true
-    tty: true
-    labels:
-      io.rancher.container.hostname_override: container_name
