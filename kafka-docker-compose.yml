@@ -1,0 +1,64 @@
+version: '2'
+volumes:
+  brokerdata:
+    driver: local
+    per_container: true
+    
+  brokerconfig:
+    driver: local
+    per_container: true
+    
+    
+services:
+  broker-volume:
+    image: rawmind/alpine-volume:0.0.2-1
+    environment:
+      SERVICE_GID: '10003'
+      SERVICE_UID: '10003'
+      SERVICE_VOLUME: /opt/kafka/logs
+    external_links:
+    - zookeeper/zk:zk
+    network_mode: none
+    volumes:
+    - brokerdata:/opt/kafka/logs
+    labels:
+      io.rancher.container.start_once: 'true'
+      io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+      io.rancher.container.hostname_override: container_name
+      
+  broker-conf:
+    image: rawmind/rancher-kafka:0.11.0.0-1
+    external_links:
+    - zookeeper/zk:zk
+    network_mode: none
+    volumes:
+    - brokerconfig:/opt/tools
+    labels:
+      io.rancher.container.start_once: 'true'
+      io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+      io.rancher.container.hostname_override: container_name
+      
+  broker:
+    image: rawmind/alpine-kafka:1.0.0-2
+    environment:
+      ADVERTISE_PUB_IP: 'false'
+      CONFD_INTERVAL: '60'
+      JVMFLAGS: -Xmx1024m -Xms1024m
+      KAFKA_AUTO_CREATE_TOPICS: 'true'
+      KAFKA_DELETE_TOPICS: 'true'
+      KAFKA_LOG_DIRS: /opt/kafka/logs
+      KAFKA_LOG_RETENTION_HOURS: '48'
+      KAFKA_NUM_PARTITIONS: '3'
+      KAFKA_REPLICATION_FACTOR: '1'
+      ZK_SERVICE: zookeeper/zk
+    external_links:
+    - zookeeper/zk:zk
+    tty: true
+    volumes_from:
+    - broker-volume
+    - broker-conf
+    labels:
+      io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+      io.rancher.sidekicks: broker-volume,broker-conf
+      io.rancher.container.hostname_override: container_name
+
